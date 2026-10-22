@@ -1,0 +1,82 @@
+
+.helice-dna-3d {
+  position: fixed;
+  top: 82px;
+  right: 0;
+  width: min(44vw, 620px);
+  height: calc(100vh - 82px);
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+  background: transparent;
+  opacity: 0.78;
+  -webkit-mask-image: linear-gradient(
+    to left,
+    black 25%,
+    rgba(0, 0, 0, 0.8) 65%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to left,
+    black 25%,
+    rgba(0, 0, 0, 0.8) 65%,
+    transparent 100%
+  );
+}
+
+.helice-dna-3d canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.pagina {
+  position: relative;
+  z-index: 1;
+  background: transparent;
+}
+
+.cabecalho,
+.navegacao-dashboard,
+.hero,
+.resultados,
+.secao-recursos,
+.rodape {
+  position: relative;
+  z-index: 1;
+}
+
+.perfil-cartao,
+.cartao-estatistica,
+.painel,
+.recurso,
+.formulario-busca {
+  position: relative;
+  backdrop-filter: blur(8px);
+}
+
+@media (max-width: 900px) {
+  .helice-dna-3d {
+    top: 72px;
+    width: 38vw;
+    height: calc(100vh - 72px);
+    opacity: 0.35;
+  }
+}
+
+@media (max-width: 600px) {
+  .helice-dna-3d {
+    top: 65px;
+    width: 48vw;
+    height: calc(100vh - 65px);
+    opacity: 0.18;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .helice-dna-3d {
+    opacity: 0.1;
+  }
+}

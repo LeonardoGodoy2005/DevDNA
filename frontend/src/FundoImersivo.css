@@ -1,0 +1,13 @@
+
+.fundo-imersivo {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.fundo-imersivo canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
