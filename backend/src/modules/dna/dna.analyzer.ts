@@ -81,42 +81,69 @@ export function analisarDesenvolvedor(
         )
 
   const quantidadeLinguagens = estatisticasLinguagens.length
+    const distribuicaoLinguagens =
+    totalRepositoriosComLinguagem > 0
+      ? estatisticasLinguagens.reduce((total, item) => {
+          const proporcao =
+            item.quantidadeRepositorios /
+            totalRepositoriosComLinguagem
+
+          return total + proporcao ** 2
+        }, 0)
+      : 0
+
+  
+  const pontuacaoEquilibrio = Math.round(
+    (1 - distribuicaoLinguagens) * 20,
+  )
 
   const pontuacaoDiversidade = Math.min(
-    quantidadeLinguagens * 5,
-    25,
+    Math.round(
+      quantidadeLinguagens === 0
+        ? 0
+        : (quantidadeLinguagens / 5) * 20,
+    ),
+    20,
   )
 
   const pontuacaoExperimentacao = Math.min(
-    repositoriosExperimentais * 5,
-    25,
+    repositoriosExperimentais * 4,
+    20,
   )
 
   const pontuacaoReconhecimento = Math.min(
-    Math.round(Math.log10(totalEstrelas + 1) * 8),
-    25,
+    Math.round(
+      repositorios.reduce(
+        (total, repositorio) =>
+          total + Math.log10(repositorio.stars + 1),
+        0,
+      ) * 4,
+    ),
+    20,
   )
 
   const pontuacaoAtividade =
     diasDesdeUltimaPublicacao === null
       ? 0
       : diasDesdeUltimaPublicacao <= 7
-        ? 25
+        ? 20
         : diasDesdeUltimaPublicacao <= 30
-          ? 20
+          ? 16
           : diasDesdeUltimaPublicacao <= 90
-            ? 15
+            ? 12
             : diasDesdeUltimaPublicacao <= 180
-              ? 10
+              ? 8
               : diasDesdeUltimaPublicacao <= 365
-                ? 5
+                ? 4
                 : 0
 
   const pontuacaoTotal =
     pontuacaoDiversidade +
+    pontuacaoEquilibrio +
     pontuacaoExperimentacao +
     pontuacaoReconhecimento +
     pontuacaoAtividade
+
 
   const quantidadeRepositoriosOriginais =
     repositoriosOriginais.length
@@ -126,48 +153,47 @@ export function analisarDesenvolvedor(
       ? totalEstrelas / repositorios.length
       : 0
 
-  let arquetipo = "O Explorador"
+    let arquetipo = "O Explorador"
 
   let descricaoArquetipo =
     "Explora diferentes possibilidades e está construindo sua identidade técnica."
 
   if (
-    quantidadeLinguagens >= 5 &&
-    quantidadeRepositoriosOriginais >= 5
+    quantidadeRepositoriosOriginais >= 5 &&
+    quantidadeLinguagens >= 5
   ) {
     arquetipo = "O Poliglota"
     descricaoArquetipo =
-      "Possui projetos em várias linguagens e demonstra diversidade tecnológica."
-  } else if (
-    quantidadeLinguagens === 1 &&
-    quantidadeRepositoriosOriginais >= 5
-  ) {
-    arquetipo = "O Especialista"
-    descricaoArquetipo =
-      "Concentra seus projetos em uma única linguagem identificada pelo GitHub."
+      "Explora várias linguagens de programação e demonstra diversidade tecnológica."
   } else if (
     quantidadeRepositoriosOriginais >= 5 &&
     mediaEstrelas >= 20
   ) {
     arquetipo = "O Arquiteto"
     descricaoArquetipo =
-      "Seus projetos apresentam reconhecimento da comunidade."
+      "Seus projetos apresentam reconhecimento da comunidade e demonstram potencial de impacto."
   } else if (
-    repositoriosExperimentais >= 5 &&
-    quantidadeRepositoriosOriginais >= 5
+    quantidadeRepositoriosOriginais >= 5 &&
+    quantidadeLinguagens === 1
+  ) {
+    arquetipo = "O Especialista"
+    descricaoArquetipo =
+      "Concentra seus projetos em uma linguagem e demonstra foco em uma área técnica."
+  } else if (
+    quantidadeRepositoriosOriginais >= 5 &&
+    repositoriosExperimentais >= 5
   ) {
     arquetipo = "O Experimentador"
     descricaoArquetipo =
-      "Mantém vários projetos próprios com pouca popularidade aparente."
+      "Mantém vários projetos próprios experimentais, explorando ideias e possibilidades."
   } else if (
     quantidadeRepositoriosOriginais >= 5 &&
     repositoriosArquivados === 0
   ) {
     arquetipo = "O Construtor"
     descricaoArquetipo =
-      "Possui vários projetos próprios e nenhum repositório arquivado no conjunto analisado."
+      "Mantém vários projetos próprios sem repositórios arquivados no conjunto analisado."
   }
-
   return {
     visaoGeral: {
       repositoriosAnalisados: repositorios.length,
@@ -191,11 +217,12 @@ export function analisarDesenvolvedor(
       diasDesdeUltimaPublicacao,
     },
 
-    pontuacao: {
+        pontuacao: {
       total: pontuacaoTotal,
       limite: 100,
       indicadores: {
         diversidade: pontuacaoDiversidade,
+        equilibrio: pontuacaoEquilibrio,
         experimentacao: pontuacaoExperimentacao,
         reconhecimento: pontuacaoReconhecimento,
         atividade: pontuacaoAtividade,

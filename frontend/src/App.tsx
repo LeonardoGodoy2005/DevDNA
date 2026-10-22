@@ -2,7 +2,6 @@
 import { useState, type FormEvent } from "react";
 
 import {
-  Search,
   Dna,
   Code2,
   Star,
@@ -39,9 +38,17 @@ interface PerfilGitHub {
 interface ResultadoDNA {
   visaoGeral: {
     repositoriosAnalisados: number;
+    repositoriosOriginais: number;
+    repositoriosBifurcados: number;
+    repositoriosAtivos: number;
+    repositoriosArquivados: number;
     totalEstrelas: number;
     totalBifurcacoes: number;
-    repositoriosAtivos: number;
+    mediaEstrelas: number;
+  };
+    atividade: {
+    ultimaPublicacao: string | null;
+    diasDesdeUltimaPublicacao: number;
   };
   linguagens: {
     linguagem: string;
@@ -52,6 +59,7 @@ interface ResultadoDNA {
     total: number;
     limite: number;
     indicadores: {
+      equilibrio: number;
       diversidade: number;
       experimentacao: number;
       reconhecimento: number;
@@ -355,6 +363,55 @@ function App() {
             </div>
           </div>
 
+<div className="grade-estatisticas">
+  <div className="cartao-estatistica">
+    <Code2 />
+    <span>Projetos próprios</span>
+    <strong>
+      {formatarNumero(dna.visaoGeral.repositoriosOriginais)}
+    </strong>
+  </div>
+
+  <div className="cartao-estatistica">
+    <GitFork />
+    <span>Repositórios bifurcados</span>
+    <strong>
+      {formatarNumero(dna.visaoGeral.repositoriosBifurcados)}
+    </strong>
+  </div>
+
+  <div className="cartao-estatistica">
+    <Activity />
+    <span>Repositórios arquivados</span>
+    <strong>
+      {formatarNumero(dna.visaoGeral.repositoriosArquivados)}
+    </strong>
+  </div>
+
+  <div className="cartao-estatistica">
+    <Star />
+    <span>Média de estrelas</span>
+    <strong>
+      {formatarNumero(dna.visaoGeral.mediaEstrelas)}
+    </strong>
+  </div>
+
+  <div className="cartao-estatistica">
+    <Activity />
+    <span>Última publicação</span>
+    <strong>
+      {formatarUltimaPublicacao(dna.atividade.ultimaPublicacao)}
+    </strong>
+    <small>
+      {dna.atividade.ultimaPublicacao === null
+        ? "Nenhuma data disponível"
+        : dna.atividade.diasDesdeUltimaPublicacao === 0
+          ? "Publicou hoje"
+          : `Há ${dna.atividade.diasDesdeUltimaPublicacao} dias`}
+    </small>
+  </div>
+</div>
+
           <div className="grade-paineis">
             <article className="painel">
               <div className="titulo-painel">
@@ -507,10 +564,26 @@ function App() {
 
             {(
               [
-                ["Diversidade", dna.pontuacao.indicadores.diversidade],
-                ["Experimentação", dna.pontuacao.indicadores.experimentacao],
-                ["Reconhecimento", dna.pontuacao.indicadores.reconhecimento],
-                ["Atividade", dna.pontuacao.indicadores.atividade],
+                [
+  "Diversidade",
+  dna.pontuacao.indicadores.diversidade,
+],
+[
+  "Equilíbrio tecnológico",
+  dna.pontuacao.indicadores.equilibrio,
+],
+[
+  "Experimentação",
+  dna.pontuacao.indicadores.experimentacao,
+],
+[
+  "Reconhecimento",
+  dna.pontuacao.indicadores.reconhecimento,
+],
+[
+  "Atividade",
+  dna.pontuacao.indicadores.atividade,
+],
               ] as const
             ).map(([nome, valor]) => (
               <div className="item-pontuacao" key={nome}>
