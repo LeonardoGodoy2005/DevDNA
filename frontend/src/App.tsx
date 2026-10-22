@@ -23,6 +23,8 @@ import {
 } from "recharts";
 
 import "./App.css";
+import { jsPDF } from "jspdf";
+
 
 interface PerfilGitHub {
   login: string;
@@ -93,6 +95,124 @@ const CORES_GRAFICO = [
   "#ec4899",
   "#06b6d4",
 ];
+
+
+
+function exportarRelatorioPDF(perfil: PerfilGitHub, dna: ResultadoDNA) {
+  const pdf = new jsPDF();
+  const margem = 20;
+  const largura = 170;
+  let y = 20;
+
+  const adicionarTexto = (texto: string) => {
+    const linhas = pdf.splitTextToSize(texto, largura);
+
+    if (y + linhas.length * 7 > 275) {
+      pdf.addPage();
+      y = 20;
+    }
+
+    pdf.text(linhas, margem, y);
+    y += linhas.length * 7;
+  };
+
+  pdf.setFontSize(22);
+  pdf.text("DevDNA", margem, y);
+  y += 12;
+
+  pdf.setFontSize(16);
+  adicionarTexto("Relatorio de analise do GitHub");
+  y += 3;
+
+  pdf.setFontSize(11);
+  adicionarTexto(`Perfil: @${perfil.login}`);
+  adicionarTexto(`Nome: ${perfil.name || "Nao informado"}`);
+  adicionarTexto(`Repositorios publicos: ${perfil.public_repos}`);
+  adicionarTexto(`Seguidores: ${perfil.followers}`);
+  adicionarTexto(`Seguindo: ${perfil.following}`);
+  y += 5;
+
+  pdf.setFontSize(14);
+  adicionarTexto("Visao geral");
+  pdf.setFontSize(11);
+  adicionarTexto(
+    `Repositorios analisados: ${dna.visaoGeral.repositoriosAnalisados}`,
+  );
+  adicionarTexto(
+    `Projetos proprios: ${dna.visaoGeral.repositoriosOriginais}`,
+  );
+  adicionarTexto(
+    `Repositorios bifurcados: ${dna.visaoGeral.repositoriosBifurcados}`,
+  );
+  adicionarTexto(
+    `Repositorios ativos: ${dna.visaoGeral.repositoriosAtivos}`,
+  );
+  adicionarTexto(
+    `Repositorios arquivados: ${dna.visaoGeral.repositoriosArquivados}`,
+  );
+  adicionarTexto(`Total de estrelas: ${dna.visaoGeral.totalEstrelas}`);
+  adicionarTexto(`Total de forks: ${dna.visaoGeral.totalBifurcacoes}`);
+  adicionarTexto(
+    `Media de estrelas: ${dna.visaoGeral.mediaEstrelas.toFixed(2)}`,
+  );
+  y += 5;
+
+  pdf.setFontSize(14);
+  adicionarTexto("Linguagens utilizadas");
+  pdf.setFontSize(11);
+
+  dna.linguagens.forEach((linguagem) => {
+    adicionarTexto(
+      `${linguagem.linguagem}: ${linguagem.quantidadeRepositorios} repositorio(s) - ${linguagem.porcentagem}%`,
+    );
+  });
+
+  y += 5;
+  pdf.setFontSize(14);
+  adicionarTexto("Arquetipo");
+  pdf.setFontSize(11);
+  adicionarTexto(dna.caracteristicas.arquetipo);
+  adicionarTexto(dna.caracteristicas.descricaoArquetipo);
+  y += 5;
+
+  pdf.setFontSize(14);
+  adicionarTexto("Pontuacao DevDNA");
+  pdf.setFontSize(11);
+  adicionarTexto(
+    `Pontuacao total: ${dna.pontuacao.total}/${dna.pontuacao.limite}`,
+  );
+
+  adicionarTexto(
+    `Diversidade: ${dna.pontuacao.indicadores.diversidade}/25`,
+  );
+  adicionarTexto(
+    `Equilibrio: ${dna.pontuacao.indicadores.equilibrio}/25`,
+  );
+  adicionarTexto(
+    `Experimentacao: ${dna.pontuacao.indicadores.experimentacao}/25`,
+  );
+  adicionarTexto(
+    `Reconhecimento: ${dna.pontuacao.indicadores.reconhecimento}/25`,
+  );
+  adicionarTexto(
+    `Atividade: ${dna.pontuacao.indicadores.atividade}/25`,
+  );
+
+  y += 8;
+  pdf.setFontSize(9);
+  adicionarTexto(
+    `Ultima publicacao: ${
+      dna.atividade.ultimaPublicacao
+        ? new Date(dna.atividade.ultimaPublicacao).toLocaleDateString("pt-BR")
+        : "Sem dados"
+    }`,
+  );
+  adicionarTexto(
+    `Relatorio gerado em ${new Date().toLocaleDateString("pt-BR")}`,
+  );
+
+  pdf.save(`DevDNA-${perfil.login}.pdf`);
+}
 
 function App() {
   const [usuario, setUsuario] = useState("");
@@ -196,6 +316,45 @@ function App() {
     if (!data) return "Sem dados";
 
     return new Date(data).toLocaleDateString("pt-BR");
+  }
+
+    function gerarRecomendacoes(dna: ResultadoDNA) {
+    const recomendacoes: string[] = [];
+
+    if (dna.caracteristicas.quantidadeLinguagens < 3) {
+      recomendacoes.push(
+        "Explore uma nova linguagem para ampliar seu repertório tecnológico.",
+      );
+    }
+
+    if (dna.visaoGeral.repositoriosOriginais < 3) {
+      recomendacoes.push(
+        "Desenvolva mais projetos próprios para demonstrar suas habilidades e ideias.",
+      );
+    }
+
+    if (dna.visaoGeral.totalEstrelas === 0) {
+      recomendacoes.push(
+        "Invista em documentação e divulgação dos projetos para facilitar que outras pessoas os encontrem.",
+      );
+    }
+
+    if (
+      dna.atividade.ultimaPublicacao === null ||
+      dna.atividade.diasDesdeUltimaPublicacao > 90
+    ) {
+      recomendacoes.push(
+        "Atualize seus projetos ou publique um novo projeto para manter seu portfólio ativo.",
+      );
+    }
+
+    if (recomendacoes.length === 0) {
+      recomendacoes.push(
+        "Continue desenvolvendo projetos próprios, documentando suas decisões técnicas e explorando novas soluções.",
+      );
+    }
+
+    return recomendacoes;
   }
 
   return (
@@ -309,6 +468,13 @@ function App() {
               <strong>{dna.pontuacao.total}</strong>
               <small>de {dna.pontuacao.limite} pontos</small>
             </div>
+            <button
+  type="button"
+  className="botao-exportar"
+  onClick={() => exportarRelatorioPDF(perfil, dna)}
+>
+  Baixar relatório PDF
+</button>
           </div>
 
           <div className="grade-estatisticas">
@@ -609,6 +775,31 @@ function App() {
               indicadores simples dos repositórios públicos. Não mede
               a habilidade real de uma pessoa desenvolvedora.
             </p>
+          </article>
+          
+                    <article className="painel painel-recomendacoes">
+            <div className="titulo-painel">
+              <span className="icone-painel verde">
+                <Zap size={20} />
+              </span>
+
+              <div>
+                <h3>Seu próximo nível</h3>
+                <p>Recomendações para evoluir como desenvolvedor</p>
+              </div>
+            </div>
+
+            <ul className="lista-recomendacoes">
+              {gerarRecomendacoes(dna).map((recomendacao, index) => (
+                <li key={index}>
+                  <span className="recomendacao-numero">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+
+                  <span>{recomendacao}</span>
+                </li>
+              ))}
+            </ul>
           </article>
         </section>
       ) : (
