@@ -240,9 +240,12 @@ function App() {
       return;
     }
 
-    const apiUrl = import.meta.env.VITE_API_URL?.replace(/\/+$/, "");
-
+    const apiUrl = (
+  import.meta.env.VITE_API_URL ||
+  "https://devdna-api-ul1h.onrender.com"
+).replace(/\/+$/, "");
     if (!apiUrl) {
+      
       setErro(
         "A URL da API não foi configurada. Verifique o arquivo .env do frontend.",
       );
