@@ -974,8 +974,10 @@ function App() {
   </section>
 </section>
 
-        ) : (
-          <section className="secao-recursos" id="recursos">
+        
+        ) : null}
+
+<section className="secao-recursos" id="recursos">
             <div className="recurso">
               <span className="recurso-icone roxo">
                 <Dna size={23} />
@@ -1012,7 +1014,6 @@ function App() {
               </p>
             </div>
           </section>
-        )}
 
         <footer className="rodape">
           <a className="marca marca-rodape" href="#inicio">

@@ -2120,3 +2120,11 @@ button:disabled {
     transition-duration: 0.01ms !important;
   }
 }
+
+html {
+  scroll-behavior: smooth;
+}
+
+#recursos {
+  scroll-margin-top: 100px;
+}
